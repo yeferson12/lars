@@ -648,7 +648,7 @@ Widget  _ciudad(LoginBloc bloc) {
    print('CELULAR: ${bloc.phone}');        
    print('=======================');  
 
-   authProvider.formatoUser(bloc.name, bloc.document, bloc.email, bloc.image, bloc.phone );      
+   authProvider.formatoUser(bloc.name, bloc.document, bloc.email, bloc.phone );      
 
   }
 
@@ -693,8 +693,6 @@ Widget  _ciudad(LoginBloc bloc) {
 
  Widget _mostrarFoto(){
 
-   
-    
      return Image(
              image: AssetImage( foto ?.path ??'assets/img/png/no-image.png'),
              height: 300.0,

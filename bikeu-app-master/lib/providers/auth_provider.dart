@@ -8,6 +8,7 @@ import '../utils/constants.dart';
 import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier{
+  final String _url1 = 'http://127.0.0.1:8000/api';
 
   Future<void> registerUser(User user) async {
     final url = apiUrl+"/users";
@@ -54,18 +55,17 @@ class AuthProvider extends ChangeNotifier{
     }
   }
   
-  Future<void> formatoUser(String name, String dni, String email, String image, String phone) async {
-     final url = apiUrl+"/formapp";
+  Future<void> formatoUser(String name, String dni, String email, String phone) async {
+     final url = "$_url1/formapp.json";
      try{
       final response = await http.post(url, body: json.encode({
           "name"    : name,
           "dni"     : dni,
           "email"   : email,
-          "image"   : image,
           "phone"   : phone,
         }),
       );
-       print(response);
+      
        
       notifyListeners();
     }catch(error){
