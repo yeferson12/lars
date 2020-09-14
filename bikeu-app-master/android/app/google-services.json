@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "60203419012",
+    "firebase_url": "https://bikeu-288818.firebaseio.com",
+    "project_id": "bikeu-288818",
+    "storage_bucket": "bikeu-288818.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60203419012:android:d0ca501de3c94d9950c9d1",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "60203419012-0503vrmvm3r1rlv4ngg0ogq0t5cb2ti6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhuFP5OnllBTnbPdo7PlNJpProNg1xD4c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "60203419012-0503vrmvm3r1rlv4ngg0ogq0t5cb2ti6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
