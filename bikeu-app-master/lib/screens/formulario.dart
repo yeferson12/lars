@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:bikeu/providers/auth_provider.dart';
 import 'package:bikeu/providers/provider_bloc.dart';
+import 'package:bikeu/providers/provider_form.dart';
 import 'package:bikeu/utils/constants.dart';
 import 'package:bikeu/widgets/custom_appbar.dart';
 import 'package:bikeu/widgets/custom_drawer_menu.dart';
@@ -13,6 +13,8 @@ import 'package:select_form_field/select_form_field.dart';
 import 'package:bikeu/widgets/default_container.dart';
 import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/material.dart';
+
+import 'package:path_provider/path_provider.dart';
 
 class Formulario extends StatefulWidget {
   @override
@@ -25,19 +27,20 @@ String _fecha = '';
 String name = '';
 String email = '';
 String phone = '';
+String tipoDni='';
 String document = '';
 String ciudad = '';
 String address = '';
 String fecha = '';
 String transporte = '';
 var foto;
-
+ File _image;
 final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 TextEditingController _insetarFecha = new TextEditingController();
 
 class _FormularioState extends State<Formulario> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final authProvider = new AuthProvider();
+  final authProvider = new FormProvider();
   bool backActive;
   Function backFuction;
   bool _check = false;
@@ -60,7 +63,7 @@ class _FormularioState extends State<Formulario> {
                   top: 60,
                   child: _buildContent(context),
                 ),
-                _appbar(),
+                CustomAppbar(backActive: false, backFuction: (){}, scaffoldKey: _scaffoldKey,),
               ],
             ),
           ),
@@ -215,41 +218,7 @@ class _FormularioState extends State<Formulario> {
     );
   }
 
-/*
-  *@_appbar: 
-*/
-  Widget _appbar() {
-    return Container(
-      height: 60,
-      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      child: Row(
-        children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.menu, size: 28),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              IconButton(
-                onPressed: backFuction,
-                icon: Icon(Icons.arrow_back, size: 28),
-              ),
-            ],
-          ),
-          Expanded(child: SizedBox(width: 5.0)),
-          Container(
-            padding: EdgeInsets.all(5),
-            child: Image(
-              image: AssetImage("assets/img/png/logo-3.png"),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
 /*
   *@_titulo: Titulo inicial
@@ -389,7 +358,7 @@ class _FormularioState extends State<Formulario> {
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         return Container(
             child: GestureDetector(
-                onTap: snapshot.hasData ? () => _valores(bloc, context) : null,
+                onTap: snapshot.hasData ? () => _valores(bloc, context, _image) : null,
                 child: new Container(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   margin: EdgeInsets.only(bottom: 53),
@@ -410,7 +379,9 @@ class _FormularioState extends State<Formulario> {
       },
     );
   }
-
+/*
+  *@_selectDate: esta funcion hace la funcionalidad de la fecha sasca el calendario
+*/
   void _selectDate(BuildContext context) async {
     showDatePicker(
             context: context,
@@ -429,7 +400,9 @@ class _FormularioState extends State<Formulario> {
       }
     });
   }
-
+/*
+  *@_name: nombre del usuario que se registra
+*/
   Widget _name(LoginBloc bloc) {
     return StreamBuilder(
       stream: bloc.nameStream,
@@ -437,7 +410,6 @@ class _FormularioState extends State<Formulario> {
         return Container(
           padding: EdgeInsets.only(left: 10, right: 10, top: 15),
           child: TextFormField(
-            initialValue: "Yeferson monsalve",
             style: textGreenDark4,
             decoration: InputDecoration(
                 labelStyle: textBlack4.copyWith(color: greenDarkColor),
@@ -449,7 +421,9 @@ class _FormularioState extends State<Formulario> {
       },
     );
   }
-
+/*
+  *@_email: email del usuario que se registra
+*/
   Widget _email(LoginBloc bloc) {
     return StreamBuilder(
         stream: bloc.emailStream,
@@ -457,7 +431,6 @@ class _FormularioState extends State<Formulario> {
           return Container(
             padding: EdgeInsets.only(left: 10, right: 10),
             child: TextFormField(
-              initialValue: "yeferson8912@gmisl.com",
               style: textGreenDark4,
               decoration: InputDecoration(
                   labelStyle: textBlack4.copyWith(color: greenDarkColor),
@@ -468,7 +441,9 @@ class _FormularioState extends State<Formulario> {
           );
         });
   }
-
+/*
+  *@_phone: celular  del usuario que se registra
+*/
   Widget _phone(LoginBloc bloc) {
     return StreamBuilder(
         stream: bloc.phoneStream,
@@ -476,7 +451,6 @@ class _FormularioState extends State<Formulario> {
           return Container(
             padding: EdgeInsets.only(left: 10, right: 10, bottom: 35),
             child: TextFormField(
-              initialValue: "3157701640",
               style: textGreenDark4,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
@@ -488,15 +462,20 @@ class _FormularioState extends State<Formulario> {
           );
         });
   }
-
+/*
+  *@_tipodocumento: tipo de documneto del usuario que se registra
+*/
   Widget _tipodocumento(LoginBloc bloc) {
-    return Container(
+    return StreamBuilder(
+        stream: bloc.tipoDniStream,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+               return Container(
       color: Colors.white,
       padding: EdgeInsets.only(left: 10, right: 10, top: 15),
       child: SelectFormField(
         labelText: 'Tipo de documento',
         items: _items,
-        onChanged: (val) => print(val),
+        onChanged: (val) => bloc.changeTipoDni,
         onSaved: (val) => print(val),
         validator: (String value) {
           if (value.isEmpty) {
@@ -505,8 +484,17 @@ class _FormularioState extends State<Formulario> {
         },
       ),
     );
-  }
+             
+        },
+    );
 
+
+
+    
+  }
+/*
+  *@_noDocumento: noDocumento del usuario que se registra
+*/
   Widget _noDocumento(LoginBloc bloc) {
     return StreamBuilder(
         stream: bloc.documentStream,
@@ -514,7 +502,6 @@ class _FormularioState extends State<Formulario> {
           return Container(
             padding: EdgeInsets.only(left: 10, right: 10, bottom: 25),
             child: TextFormField(
-              initialValue: "1090517661",
               style: textGreenDark4,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
@@ -526,7 +513,9 @@ class _FormularioState extends State<Formulario> {
           );
         });
   }
-
+/*
+  *@_ciudad: del usuario que se registra
+*/
   Widget _ciudad(LoginBloc bloc) {
     return StreamBuilder(
         stream: bloc.ciudadStream,
@@ -534,7 +523,6 @@ class _FormularioState extends State<Formulario> {
           return Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 15),
             child: TextFormField(
-              initialValue: "bogota",
               style: textGreenDark4,
               decoration: InputDecoration(
                   labelStyle: textBlack4.copyWith(color: greenDarkColor),
@@ -545,7 +533,9 @@ class _FormularioState extends State<Formulario> {
           );
         });
   }
-
+/*
+  *@_address: del usuari que se registra
+*/
   Widget _address(LoginBloc bloc) {
     return StreamBuilder(
         stream: bloc.addresStream,
@@ -553,7 +543,6 @@ class _FormularioState extends State<Formulario> {
           return Container(
             padding: EdgeInsets.only(left: 10, right: 10),
             child: TextFormField(
-              initialValue: "av45 call36",
               style: textGreenDark4,
               decoration: InputDecoration(
                   labelStyle: textBlack4.copyWith(color: greenDarkColor),
@@ -564,27 +553,23 @@ class _FormularioState extends State<Formulario> {
           );
         });
   }
-
-  _valores(LoginBloc bloc, BuildContext context) {
+/*
+  *@_valores: esta funcion cumple con mandar los parametros al provider validar las casilla
+  * y redirigue a otra pagina 
+*/
+  _valores(LoginBloc bloc, BuildContext context, File _imagen) async{
     if (!_formkey.currentState.validate()) {
       return;
     }
     _formkey.currentState.save();
-    Navigator.pushReplacementNamed(context, "pendiente");
-
-    print('=======================');
-    print('NOmbre: ${bloc.name}');
-    print('EMAIL: ${bloc.email}');
-    print('DOCUMENTO: ${bloc.document}');
-    print('CIUDAD: ${bloc.ciudad}');
-    print('DIRECCION: ${bloc.image}');
-    print('CELULAR: ${bloc.phone}');
-    print('=======================');
 
     authProvider.formatoUser(
-        bloc.name, bloc.document, bloc.email, bloc.phone, foto);
+       bloc.name, bloc.document, bloc.email, bloc.phone, bloc.address, bloc.ciudad,_imagen,bloc.tipoDni);
+    Navigator.pushReplacementNamed(context, "pendiente");
   }
-
+/*
+  *@_agregarFoto: esta es la seccion en la que el usuairo puede agreggar y mirar su foto
+*/
   Widget _agregarFoto() {
     return Card(
       child: Column(
@@ -622,7 +607,9 @@ class _FormularioState extends State<Formulario> {
       ),
     );
   }
-
+/*
+  *@_mostrarFoto: esta funcion muestra foto en pantalla despues que el usuario loa haya selecionado
+*/
   Widget _mostrarFoto() {
     return Image(
       image: AssetImage(foto?.path ?? 'assets/img/png/no-image.png'),
@@ -630,16 +617,20 @@ class _FormularioState extends State<Formulario> {
       fit: BoxFit.cover,
     );
   }
-
+/*
+  *@_seleccionarFoto:
+*/
   _seleccionarFoto() async {
     final _picker = ImagePicker();
-
-    PickedFile _foto = await _picker.getImage(source: ImageSource.gallery);
+  
+    PickedFile _foto = await _picker.getImage(source: ImageSource.gallery, imageQuality: 10);
 
     foto = _foto;
     if (_foto != null) {}
 
-    setState(() {});
+    setState(() {
+     _image = File(_foto.path);
+    });
   }
 }
 

@@ -6,13 +6,33 @@ import 'dart:ffi';
 
 class Validators {
 
+  final validatorEmailLogin = StreamTransformer<String, String>.fromHandlers(
+    handleData:(emailLogin, sink){
+       Pattern pattern=  r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
+     RegExp regExp = new RegExp(pattern);
+
+     if(regExp.hasMatch(emailLogin)&& emailLogin.length >=1){
+       sink.add(emailLogin);
+     }else{
+       sink.addError('El correo electronico es requerido');
+     }
+    }
+  );
+  
+  final validatorpassword = StreamTransformer<String, String>.fromHandlers(
+    handleData:(password, sink){
+      if(password.length >= 4){
+          sink.add(password);
+      }else{
+        sink.addError('mas de 4 caracteres por favor');
+      }
+    }
+  );
 
   final validatorImage = StreamTransformer<String, String>.fromHandlers(
     handleData:(email, sink){
     }
   );
-
-
 
   final validatorEmail = StreamTransformer<String, String>.fromHandlers(
     handleData:(email, sink){
